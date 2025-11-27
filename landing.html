@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="SafeMeetAlert - Your Personal Safety Companion. Meet safely with GPS tracking, emergency alerts, and trusted contacts monitoring your wellbeing.">
+    <meta name="keywords" content="personal safety app, meeting safety, GPS tracking, emergency alerts, safety companion">
+    <title>SafeMeetAlert - Your Personal Safety Companion</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0085CA;
+            --dark-blue: #101820;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --success: #2ed573;
+            --danger: #ff4757;
+            --warning: #ffa502;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* NAVIGATION */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .btn-login {
+            background: var(--white);
+            color: var(--primary-blue);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            padding: 120px 20px 80px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--primary-blue);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        /* ANIMATED PHONE MOCKUP */
+        .phone-mockup {
+            position: relative;
+            width: 300px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        .phone-frame {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 25px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: screenScroll 20s ease-in-out infinite;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            padding: 40px 20px 20px;
+            text-align: center;
+        }
+
+        .app-header h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            font-size: 10px;
+            opacity: 0.9;
+        }
+
+        /* TABS SIMULATION */
+        .app-tabs {
+            display: flex;
+            background: #f5f5f5;
+            padding: 5px;
+            gap: 5px;
+            margin: 10px;
+            border-radius: 8px;
+        }
+
+        .app-tab {
+            flex: 1;
+            padding: 6px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #666;
+            background: transparent;
+        }
+
+        .app-tab.active {
+            background: white;
+            color: var(--primary-blue);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .app-tab.alert-flash {
+            background: var(--danger) !important;
+            color: white !important;
+            animation: tabFlash 1s infinite;
+            position: relative;
+        }
+
+        .app-tab.alert-flash::after {
+            content: '!';
+            position: absolute;
+            top: -3px;
+            right: 5px;
+            background: white;
+            color: var(--danger);
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            font-size: 10px;
+            font-weight: bold;
+            line-height: 14px;
+        }
+
+        @keyframes tabFlash {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
+            }
+            50% {
+                opacity: 0.85;
+                box-shadow: 0 0 20px rgba(255, 71, 87, 1);
+            }
+        }
+
+        .feature-demo {
+            padding: 15px;
+            background: var(--white);
+        }
+
+        .demo-card {
+            background: var(--light-bg);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary-blue);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .demo-card h4 {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .demo-card p {
+            font-size: 10px;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            animation: badgeFlash 1s infinite;
+        }
+
+        @keyframes badgeFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* SOS MESSAGE SIMULATION */
+        .sms-message {
+            background: #fee2e2;
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 15px;
+            animation: messageSlideIn 1s ease-out;
+        }
+
+        .sms-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #fecaca;
+        }
+
+        .sms-icon {
+            font-size: 20px;
+        }
+
+        .sms-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--danger);
+            flex: 1;
+        }
+
+        .sms-body {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .sms-body strong {
+            color: #333;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .audio-transcription {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+            border-left: 3px solid var(--danger);
+        }
+
+        .audio-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .audio-icon {
+            font-size: 16px;
+        }
+
+        .audio-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--danger);
+        }
+
+        .audio-waveform {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            height: 20px;
+            margin-bottom: 6px;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            background: var(--danger);
+            border-radius: 2px;
+            animation: waveAnimation 1.5s ease-in-out infinite;
+        }
+
+        .waveform-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .waveform-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { height: 12px; animation-delay: 0.4s; }
+        .waveform-bar:nth-child(6) { height: 9px; animation-delay: 0.5s; }
+        .waveform-bar:nth-child(7) { height: 15px; animation-delay: 0.6s; }
+        .waveform-bar:nth-child(8) { height: 11px; animation-delay: 0.7s; }
+
+        @keyframes waveAnimation {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .audio-text {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes screenScroll {
+            0%, 100% { transform: translateY(0); }
+            20% { transform: translateY(0); }
+            35% { transform: translateY(-280px); }
+            50% { transform: translateY(-280px); }
+            65% { transform: translateY(-580px); }
+            85% { transform: translateY(-580px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FEATURES SECTION */
+        .features {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 30px;
+            background: var(--light-bg);
+            border-radius: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 80px 20px;
+            background: var(--light-bg);
+        }
+
+        .steps-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            gap: 40px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 26px;
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+        }
+
+        .step-content p {
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        /* SAFETY TIPS */
+        .safety-tips {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .tips-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .tip-card {
+            padding: 30px;
+            background: #fffbeb;
+            border-left: 5px solid var(--warning);
+            border-radius: 10px;
+        }
+
+        .tip-card h4 {
+            font-size: 20px;
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tip-icon {
+            font-size: 28px;
+        }
+
+        .tip-card p {
+            font-size: 16px;
+            color: var(--text-light);
+        }
+
+        /* PRICING */
+        .pricing {
+            padding: 80px 20px;
+            background: var(--light-bg);
+        }
+
+        .pricing-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .price-card {
+            background: var(--white);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid transparent;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .price-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
+        }
+
+        .price-card.featured {
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 40px rgba(0, 133, 202, 0.2);
+            position: relative;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            color: var(--primary-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .plan-price span {
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-bg);
+            font-size: 16px;
+            color: var(--text-light);
+        }
+
+        .plan-features li:before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* DOWNLOAD SECTION */
+        .download {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .download h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .download p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+
+        .app-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .app-btn {
+            background: var(--white);
+            color: var(--dark-blue);
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            transition: transform 0.3s;
+            min-width: 200px;
+        }
+
+        .app-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .app-icon {
+            font-size: 40px;
+        }
+
+        .app-text {
+            text-align: left;
+        }
+
+        .app-text small {
+            display: block;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .app-text span {
+            display: block;
+            font-size: 18px;
+        }
+
+        /* ABOUT SECTION */
+        .about {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-content h2 {
+            font-size: 40px;
+            color: var(--dark-blue);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 18px;
+            color: var(--text-light);
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+
+        .mission-box {
+            background: var(--light-bg);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            border-left: 5px solid var(--primary-blue);
+        }
+
+        .mission-box h3 {
+            font-size: 28px;
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+        }
+
+        .mission-box p {
+            font-size: 18px;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--dark-blue);
+            color: var(--white);
+            padding: 60px 20px 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--white);
+            font-size: 20px;
+            transition: background 0.3s;
+        }
+
+        .social-icon:hover {
+            background: var(--primary-blue);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* CONTACT SECTION */
+        .contact {
+            padding: 80px 20px;
+            background: var(--light-bg);
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .contact-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .contact-card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .contact-card h4 {
+            font-size: 20px;
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+        }
+
+        .contact-card p {
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .contact-form {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-blue);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        /* PRIVACY & TERMS */
+        .legal {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .legal-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .legal-content h2 {
+            font-size: 40px;
+            color: var(--dark-blue);
+            margin-bottom: 30px;
+        }
+
+        .legal-content h3 {
+            font-size: 26px;
+            color: var(--dark-blue);
+            margin-top: 40px;
+            margin-bottom: 15px;
+        }
+
+        .legal-content p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .legal-content ul {
+            margin: 20px 0 20px 30px;
+            color: var(--text-light);
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        /* PAGE SECTIONS */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 36px;
+            }
+
+            .hero-content p {
+                font-size: 18px;
+            }
+
+            .phone-mockup {
+                width: 250px;
+                height: 500px;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                background: var(--dark-blue);
+                flex-direction: column;
+                padding: 20px;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .section-header h2 {
+                font-size: 32px;
+            }
+
+            .step {
+                grid-template-columns: 60px 1fr;
+                gap: 20px;
+            }
+
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .step-content h3 {
+                font-size: 22px;
+            }
+
+            .contact-form {
+                padding: 25px;
+            }
+
+            .app-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .app-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* SCROLL ANIMATION */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="showSection('home'); return false;">
+                <span class="logo-icon">🛡️</span>
+                <span>SafeMeetAlert</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#" onclick="showSection('home'); return false;">Home</a></li>
+                <li><a href="#" onclick="scrollToSection('features'); return false;">Features</a></li>
+                <li><a href="#" onclick="scrollToSection('how-it-works'); return false;">How It Works</a></li>
+                <li><a href="#" onclick="scrollToSection('pricing'); return false;">Pricing</a></li>
+                <li><a href="#" onclick="showSection('about'); return false;">About</a></li>
+                <li><a href="#" onclick="showSection('contact'); return false;">Contact</a></li>
+                <li><a href="http://localhost:5000/" class="btn-login">Login / Sign Up</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page-section active">
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-container">
+                <div class="hero-content fade-in">
+                    <h1>Meet Safely, Stay Connected</h1>
+                    <p>Your Personal Safety Companion for every meeting. GPS tracking, emergency alerts, and trusted contacts keeping you safe.</p>
+                    <div class="cta-buttons">
+                        <a href="index-v5.html" class="btn btn-primary">Get Started Free</a>
+                        <a href="#" onclick="scrollToSection('features'); return false;" class="btn btn-secondary">Learn More</a>
+                    </div>
+                </div>
+                <div class="phone-mockup fade-in">
+                    <div class="phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                            <div class="screen-content">
+                                <!-- Screen 1: Dashboard with Tabs -->
+                                <div class="app-header">
+                                    <h3>🛡️ SafeMeetAlert</h3>
+                                    <p>Your Personal Safety Companion</p>
+                                </div>
+                                <div class="app-tabs">
+                                    <div class="app-tab active">Meetings</div>
+                                    <div class="app-tab">Monitor</div>
+                                    <div class="app-tab">Contacts</div>
+                                    <div class="app-tab alert-flash">Alerts</div>
+                                    <div class="app-tab">Settings</div>
+                                </div>
+                                <div class="feature-demo">
+                                    <div class="demo-card">
+                                        <h4>Meeting with Alex</h4>
+                                        <p>📍 Downtown Coffee Shop</p>
+                                        <p>🕐 2:00 PM - 3:30 PM</p>
+                                        <span class="status-badge badge-active">ACTIVE NOW</span>
+                                    </div>
+                                    <div class="demo-card">
+                                        <h4>Emergency Contacts (3)</h4>
+                                        <p>✓ Mom - Notified</p>
+                                        <p>✓ Sarah - Monitoring</p>
+                                        <p>✓ Mike - Monitoring</p>
+                                    </div>
+                                    <div class="demo-card">
+                                        <h4>🗺️ Live GPS Tracking</h4>
+                                        <p>Location updated 2 min ago</p>
+                                        <p style="color: #10b981; font-weight: 600;">✓ All systems active</p>
+                                    </div>
+                                </div>
+
+                                <!-- Screen 2: SOS Alert Message -->
+                                <div style="margin-top: 280px;">
+                                    <div class="app-header">
+                                        <h3>🛡️ SafeMeetAlert</h3>
+                                        <p>Emergency Alert System</p>
+                                    </div>
+                                    <div class="sms-message">
+                                        <div class="sms-header">
+                                            <span class="sms-icon">🚨</span>
+                                            <span class="sms-title">EMERGENCY ALERT SENT</span>
+                                        </div>
+                                        <div class="sms-body">
+                                            <strong>Alert sent to 3 contacts:</strong>
+                                            Mom, Sarah, Mike
+                                            <br><br>
+                                            <strong>📍 Location shared:</strong>
+                                            Downtown Coffee Shop<br>
+                                            GPS: 40.7128, -74.0060
+                                            <br><br>
+                                            <strong>Meeting Details:</strong>
+                                            With Alex at 2:00 PM
+                                        </div>
+                                        <div class="audio-transcription">
+                                            <div class="audio-header">
+                                                <span class="audio-icon">🎤</span>
+                                                <span class="audio-label">VOICE MESSAGE RECORDING</span>
+                                            </div>
+                                            <div class="audio-waveform">
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                                <div class="waveform-bar"></div>
+                                            </div>
+                                            <div class="audio-text">
+                                                "Help! I need assistance at the coffee shop. Please call police immediately."
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Screen 3: Overdue Alert -->
+                                <div style="margin-top: 300px;">
+                                    <div class="app-header">
+                                        <h3>🛡️ SafeMeetAlert</h3>
+                                        <p>Safety Monitoring Active</p>
+                                    </div>
+                                    <div class="app-tabs">
+                                        <div class="app-tab">Meetings</div>
+                                        <div class="app-tab">Monitor</div>
+                                        <div class="app-tab">Contacts</div>
+                                        <div class="app-tab alert-flash">Alerts</div>
+                                        <div class="app-tab">Settings</div>
+                                    </div>
+                                    <div class="feature-demo">
+                                        <div class="demo-card" style="border-left-color: #ff4757; background: #fee2e2;">
+                                            <h4>⚠️ OVERDUE MEETING</h4>
+                                            <p><strong>Meeting with Jordan</strong></p>
+                                            <p>📍 Public Library</p>
+                                            <p>🕐 Ended 25 minutes ago</p>
+                                            <span class="status-badge badge-danger">🚨 NOT CHECKED IN</span>
+                                        </div>
+                                        <div class="demo-card">
+                                            <h4>Grace Period Expired</h4>
+                                            <p style="color: #dc2626; font-weight: 600;">⚠️ Emergency contacts have been notified</p>
+                                            <p style="font-size: 9px; margin-top: 6px;">Alert sent with GPS location and meeting details</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section class="features" id="features">
+            <div class="section-header fade-in">
+                <h2>Powerful Safety Features</h2>
+                <p>Everything you need to meet safely and stay protected</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">🚨</span>
+                    <h3>Emergency Alerts</h3>
+                    <p>One-tap emergency button instantly notifies all your trusted contacts with your location and meeting details.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">🗺️</span>
+                    <h3>GPS Tracking</h3>
+                    <p>Real-time location tracking during meetings. Your emergency contacts can see exactly where you are on a live map.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">👥</span>
+                    <h3>Emergency Contacts</h3>
+                    <p>Add unlimited trusted contacts who will be notified before, during, and after your meetings.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">📅</span>
+                    <h3>Meeting Scheduler</h3>
+                    <p>Schedule meetings with automatic overlap detection. Never double-book your safety monitoring.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">⏰</span>
+                    <h3>Grace Period System</h3>
+                    <p>10-minute grace period after meetings end. Contacts are alerted only if you don't check in.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <span class="feature-icon">📱</span>
+                    <h3>SMS Notifications</h3>
+                    <p>Automatic SMS alerts to emergency contacts with meeting details, location, and safety PINs.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="how-it-works" id="how-it-works">
+            <div class="section-header fade-in">
+                <h2>How SafeMeetAlert Works</h2>
+                <p>Getting started is simple and takes less than 5 minutes</p>
+            </div>
+            <div class="steps-container">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Create Your Account</h3>
+                        <p>Sign up with your email and add at least 3 emergency contacts—friends or family members who will monitor your safety.</p>
+                    </div>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Schedule a Meeting</h3>
+                        <p>Enter meeting details: who you're meeting, where, and when. Select which emergency contacts should be notified.</p>
+                    </div>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Enable Safety Features</h3>
+                        <p>Turn on GPS tracking and SMS notifications. Your contacts receive meeting details and can track your location in real-time.</p>
+                    </div>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Meet with Confidence</h3>
+                        <p>During your meeting, your location is monitored. After it ends, you have 10 minutes to check in as safe.</p>
+                    </div>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Check In Safely</h3>
+                        <p>Mark yourself safe with one tap. If you don't check in after the grace period, emergency contacts are automatically alerted.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SAFETY TIPS -->
+        <section class="safety-tips">
+            <div class="section-header fade-in">
+                <h2>Safety Tips for Meeting Strangers</h2>
+                <p>Follow these guidelines to maximize your safety</p>
+            </div>
+            <div class="tips-grid">
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">🏠</span> Never Meet at Your Home</h4>
+                    <p>Protect your privacy and personal safety by avoiding home meetings. Always choose public locations.</p>
+                </div>
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">👥</span> Bring a Friend</h4>
+                    <p>If possible, take a trusted friend or family member with you for added security and peace of mind.</p>
+                </div>
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">🚔</span> Meet at Safe Locations</h4>
+                    <p>Police or fire stations are the safest options. Otherwise, choose busy public places with security cameras.</p>
+                </div>
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">💡</span> Well-Lit Public Spaces</h4>
+                    <p>Choose busy, well-monitored areas like shopping centers, restaurants, or coffee shops during business hours.</p>
+                </div>
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">💵</span> Avoid Carrying Cash</h4>
+                    <p>Use credit/debit cards or digital payment methods to minimize theft risk and avoid unnecessary vulnerability.</p>
+                </div>
+                <div class="tip-card fade-in">
+                    <h4><span class="tip-icon">📱</span> Keep Phone Charged</h4>
+                    <p>Ensure your phone is fully charged before meetings. Consider bringing a portable charger for extended meetings.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING -->
+        <section class="pricing" id="pricing">
+            <div class="section-header fade-in">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that works best for you</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="price-card fade-in">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">$0<span>/forever</span></div>
+                    <ul class="plan-features">
+                        <li>Be an emergency contact</li>
+                        <li>Monitor others' meetings</li>
+                        <li>Receive SMS alerts</li>
+                        <li>View live GPS tracking</li>
+                        <li>Access to safety tips</li>
+                    </ul>
+                    <a href="index-v5.html" class="btn btn-primary">Get Started</a>
+                </div>
+                <div class="price-card featured fade-in">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="plan-name">Monthly</div>
+                    <div class="plan-price">$10<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li>Everything in Free</li>
+                        <li>Create unlimited meetings</li>
+                        <li>Live GPS tracking</li>
+                        <li>SMS notifications</li>
+                        <li>Grace period system</li>
+                        <li>Emergency SOS button</li>
+                        <li>Meeting history</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="index-v5.html" class="btn btn-primary">Start Free Trial</a>
+                </div>
+                <div class="price-card fade-in">
+                    <div class="plan-name">Annual</div>
+                    <div class="plan-price">$100<span>/year</span></div>
+                    <p style="color: var(--success); font-weight: 600; margin-bottom: 20px;">Save $20 per year!</p>
+                    <ul class="plan-features">
+                        <li>Everything in Monthly</li>
+                        <li>2 months free</li>
+                        <li>Advanced analytics</li>
+                        <li>Export meeting data</li>
+                        <li>Priority feature access</li>
+                        <li>Dedicated support</li>
+                        <li>Annual safety report</li>
+                    </ul>
+                    <a href="index-v5.html" class="btn btn-primary">Get Annual Plan</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOWNLOAD SECTION -->
+        <section class="download">
+            <div class="fade-in">
+                <h2>Download SafeMeetAlert Today</h2>
+                <p>Available on iOS and Android. Start meeting safely in minutes.</p>
+                <div class="app-buttons">
+                    <a href="#" class="app-btn" onclick="alert('iOS app coming soon! For now, use the web app at ' + window.location.origin); return false;">
+                        <span class="app-icon">🍎</span>
+                        <div class="app-text">
+                            <small>Download on the</small>
+                            <span>App Store</span>
+                        </div>
+                    </a>
+                    <a href="#" class="app-btn" onclick="alert('Android app coming soon! For now, use the web app at ' + window.location.origin); return false;">
+                        <span class="app-icon">🤖</span>
+                        <div class="app-text">
+                            <small>Get it on</small>
+                            <span>Google Play</span>
+                        </div>
+                    </a>
+                </div>
+                <p style="margin-top: 30px; opacity: 0.9;">Or use our web app: <a href="index-v5.html" style="color: white; font-weight: bold; text-decoration: underline;">Launch Web App →</a></p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div id="aboutPage" class="page-section">
+        <section class="about">
+            <div class="about-content">
+                <h2>About SafeMeetAlert</h2>
+                <p>SafeMeetAlert was born from a simple idea: everyone deserves to feel safe when meeting new people. Whether you're meeting someone from an online marketplace, going on a first date, or conducting business with a stranger, personal safety should never be compromised.</p>
+                
+                <p>In today's connected world, we meet more strangers than ever before. From online dating to e-commerce transactions, ride-sharing to freelance work—modern life requires us to trust people we've never met. While most interactions are perfectly safe, having a safety net provides invaluable peace of mind.</p>
+
+                <div class="mission-box">
+                    <h3>Our Mission</h3>
+                    <p>To empower people to meet confidently by providing intelligent, non-intrusive safety monitoring that activates only when needed. We believe safety technology should be invisible when everything is fine, but instantly accessible when it's not.</p>
+                </div>
+
+                <h3 style="font-size: 32px; color: var(--dark-blue); margin-top: 50px; margin-bottom: 20px;">Why SafeMeetAlert?</h3>
+                
+                <p><strong>Smart Monitoring:</strong> Unlike constant tracking apps, SafeMeetAlert only monitors during scheduled meetings. Your privacy is protected, and your battery life is preserved.</p>
+
+                <p><strong>Family & Friends as Guardians:</strong> Instead of relying on strangers or call centers, SafeMeetAlert empowers your trusted network. Your emergency contacts receive real-time updates and can take immediate action if needed.</p>
+
+                <p><strong>Grace Period Intelligence:</strong> We understand meetings run long. Our 10-minute grace period prevents false alarms while ensuring genuine emergencies trigger immediate alerts.</p>
+
+                <p><strong>Simple by Design:</strong> Safety tools should be easy to use under stress. SafeMeetAlert's one-tap emergency button and automatic notifications mean help is always just seconds away.</p>
+
+                <div class="mission-box" style="background: #dcfce7; border-left-color: var(--success);">
+                    <h3>Our Commitment</h3>
+                    <p>We are committed to protecting your data, respecting your privacy, and continuously improving our safety features. SafeMeetAlert never sells your data, never shares your location without permission, and never compromises on security.</p>
+                </div>
+
+                <h3 style="font-size: 32px; color: var(--dark-blue); margin-top: 50px; margin-bottom: 20px;">Who Uses SafeMeetAlert?</h3>
+                
+                <p><strong>Online Sellers & Buyers:</strong> Meet safely when buying or selling items from online marketplaces like Facebook Marketplace, Craigslist, or OfferUp.</p>
+
+                <p><strong>First Dates:</strong> Enjoy dating apps with an extra layer of security. Let trusted friends monitor your first meetings.</p>
+
+                <p><strong>Freelancers & Contractors:</strong> Meet new clients confidently, especially for home services or in-person consultations.</p>
+
+                <p><strong>Parents & Students:</strong> College students, young professionals, and parents can all benefit from having a safety companion.</p>
+
+                <p><strong>Anyone Meeting Strangers:</strong> From rideshare meetups to real estate viewings, SafeMeetAlert adapts to any situation where you're meeting someone new.</p>
+
+                <div class="mission-box" style="background: #fef3c7; border-left-color: var(--warning);">
+                    <h3>Join Our Community</h3>
+                    <p>SafeMeetAlert is more than an app—it's a community of people looking out for each other. When you use SafeMeetAlert, you're not just protecting yourself; you're part of a network dedicated to making the world a safer place for everyone.</p>
+                </div>
+
+                <p style="text-align: center; margin-top: 50px; font-size: 20px;">
+                    <strong>Ready to meet safely?</strong><br>
+                    <a href="index-v5.html" style="color: var(--primary-blue); text-decoration: none; font-weight: 600;">Get Started Free →</a>
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- CONTACT PAGE -->
+    <div id="contactPage" class="page-section">
+        <section class="contact">
+            <div class="section-header">
+                <h2>Contact Us</h2>
+                <p>We'd love to hear from you. Reach out with questions, feedback, or support needs.</p>
+            </div>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <span class="contact-card-icon">📧</span>
+                        <h4>Email</h4>
+                        <p>support@safemeetalert.app</p>
+                        <p style="font-size: 14px; margin-top: 10px;">We respond within 24 hours</p>
+                    </div>
+                    <div class="contact-card">
+                        <span class="contact-card-icon">💬</span>
+                        <h4>Live Chat</h4>
+                        <p>Available Mon-Fri</p>
+                        <p style="font-size: 14px; margin-top: 10px;">9 AM - 6 PM EST</p>
+                    </div>
+                    <div class="contact-card">
+                        <span class="contact-card-icon">📱</span>
+                        <h4>Social Media</h4>
+                        <p>@SafeMeetAlert</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Follow us for updates</p>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h3 style="text-align: center; margin-bottom: 30px; color: var(--dark-blue);">Send Us a Message</h3>
+                    <form onsubmit="handleContactSubmit(event)">
+                        <div class="form-group">
+                            <label>Name *</label>
+                            <input type="text" required placeholder="Your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" required placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject *</label>
+                            <input type="text" required placeholder="How can we help?">
+                        </div>
+                        <div class="form-group">
+                            <label>Message *</label>
+                            <textarea required placeholder="Tell us more about your question or feedback..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- PRIVACY POLICY PAGE -->
+    <div id="privacyPage" class="page-section">
+        <section class="legal">
+            <div class="legal-content">
+                <h2>Privacy Policy</h2>
+                <p><em>Last updated: January 2025</em></p>
+
+                <h3>1. Information We Collect</h3>
+                <p>SafeMeetAlert collects the following information to provide our safety monitoring service:</p>
+                <ul>
+                    <li><strong>Account Information:</strong> Name, email address, phone number, and password</li>
+                    <li><strong>Emergency Contacts:</strong> Names, phone numbers, and email addresses of contacts you add</li>
+                    <li><strong>Meeting Details:</strong> Information about scheduled meetings including location, time, and person you're meeting</li>
+                    <li><strong>Location Data:</strong> GPS coordinates when you enable location tracking during meetings</li>
+                    <li><strong>Usage Data:</strong> How you interact with our app, features used, and technical diagnostics</li>
+                </ul>
+
+                <h3>2. How We Use Your Information</h3>
+                <p>We use your information exclusively to provide and improve SafeMeetAlert services:</p>
+                <ul>
+                    <li>Send SMS and email alerts to your emergency contacts during meetings</li>
+                    <li>Track your location in real-time when you enable GPS tracking</li>
+                    <li>Send emergency alerts if you don't check in after the grace period</li>
+                    <li>Improve app functionality and user experience</li>
+                    <li>Provide customer support and respond to inquiries</li>
+                    <li>Ensure account security and prevent fraud</li>
+                </ul>
+
+                <h3>3. Information Sharing</h3>
+                <p><strong>We never sell your data.</strong> We only share information in these limited circumstances:</p>
+                <ul>
+                    <li><strong>Emergency Contacts:</strong> Meeting details and location data are shared with contacts you explicitly designate</li>
+                    <li><strong>Legal Requirements:</strong> When required by law, court order, or to protect safety</li>
+                    <li><strong>Service Providers:</strong> Third-party services (SMS, email, maps) that help us operate SafeMeetAlert, under strict confidentiality agreements</li>
+                </ul>
+
+                <h3>4. Location Data Privacy</h3>
+                <p>Location tracking is entirely under your control:</p>
+                <ul>
+                    <li>GPS tracking only activates when you enable it for specific meetings</li>
+                    <li>Location data is only collected during active meetings</li>
+                    <li>You can disable location tracking at any time</li>
+                    <li>Location history is retained for 90 days then automatically deleted</li>
+                    <li>Emergency contacts can only see your location when you've scheduled a meeting with tracking enabled</li>
+                </ul>
+
+                <h3>5. Data Security</h3>
+                <p>We implement industry-standard security measures:</p>
+                <ul>
+                    <li>End-to-end encryption for location data transmission</li>
+                    <li>Secure password hashing (passwords are never stored in plain text)</li>
+                    <li>Regular security audits and penetration testing</li>
+                    <li>Secure servers with 24/7 monitoring</li>
+                    <li>Two-factor authentication available for all accounts</li>
+                </ul>
+
+                <h3>6. Your Rights and Choices</h3>
+                <p>You have complete control over your data:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of all data we have about you</li>
+                    <li><strong>Correction:</strong> Update or correct your personal information anytime</li>
+                    <li><strong>Deletion:</strong> Request complete deletion of your account and all associated data</li>
+                    <li><strong>Export:</strong> Download your meeting history and contact information</li>
+                    <li><strong>Opt-Out:</strong> Disable SMS notifications or email alerts at any time</li>
+                </ul>
+
+                <h3>7. Data Retention</h3>
+                <ul>
+                    <li><strong>Active Accounts:</strong> Data retained while your account is active</li>
+                    <li><strong>Inactive Accounts:</strong> Accounts inactive for 2 years are automatically deleted</li>
+                    <li><strong>Meeting History:</strong> Retained for 1 year, then archived or deleted</li>
+                    <li><strong>Location Data:</strong> Automatically deleted after 90 days</li>
+                    <li><strong>Deleted Accounts:</strong> All data permanently deleted within 30 days of account deletion</li>
+                </ul>
+
+                <h3>8. Children's Privacy</h3>
+                <p>SafeMeetAlert is not intended for users under 18. We do not knowingly collect data from minors. Parents may create accounts for their children and manage them as guardians.</p>
+
+                <h3>9. International Users</h3>
+                <p>SafeMeetAlert operates globally. By using our service, you consent to data transfer to the United States where our servers are located. We comply with GDPR for EU users and applicable privacy laws worldwide.</p>
+
+                <h3>10. Changes to This Policy</h3>
+                <p>We may update this privacy policy periodically. Significant changes will be communicated via email. Continued use of SafeMeetAlert after changes constitutes acceptance of the updated policy.</p>
+
+                <h3>11. Contact Us About Privacy</h3>
+                <p>For privacy questions or to exercise your data rights, contact us at:</p>
+                <p><strong>Email:</strong> privacy@safemeetalert.app<br>
+                <strong>Subject Line:</strong> Privacy Inquiry</p>
+
+                <p style="margin-top: 40px; padding: 20px; background: var(--light-bg); border-radius: 10px;">
+                    <strong>Summary:</strong> We respect your privacy. We only collect data necessary to keep you safe, never sell it, and give you complete control over your information. Location tracking is optional and only active when you choose to enable it.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- TERMS OF SERVICE PAGE -->
+    <div id="termsPage" class="page-section">
+        <section class="legal">
+            <div class="legal-content">
+                <h2>Terms of Service</h2>
+                <p><em>Last updated: January 2025</em></p>
+
+                <h3>1. Acceptance of Terms</h3>
+                <p>By accessing or using SafeMeetAlert, you agree to be bound by these Terms of Service. If you disagree with any part of these terms, you may not use our service.</p>
+
+                <h3>2. Description of Service</h3>
+                <p>SafeMeetAlert is a personal safety application that provides:</p>
+                <ul>
+                    <li>Meeting scheduling and safety monitoring</li>
+                    <li>GPS location tracking during meetings (when enabled)</li>
+                    <li>Emergency alert system with automated notifications</li>
+                    <li>Emergency contact management and notification system</li>
+                    <li>Grace period monitoring after scheduled meetings</li>
+                </ul>
+
+                <h3>3. User Responsibilities</h3>
+                <p>As a SafeMeetAlert user, you agree to:</p>
+                <ul>
+                    <li>Provide accurate, current information when creating your account</li>
+                    <li>Maintain the security of your password and account</li>
+                    <li>Notify us immediately of any unauthorized account access</li>
+                    <li>Use SafeMeetAlert only for lawful purposes</li>
+                    <li>Obtain consent from emergency contacts before adding them</li>
+                    <li>Not abuse the emergency alert system or create false emergencies</li>
+                    <li>Follow all safety guidelines and recommendations provided in the app</li>
+                </ul>
+
+                <h3>4. Service Limitations</h3>
+                <p><strong>IMPORTANT:</strong> SafeMeetAlert is a safety tool, not a guarantee of protection. You acknowledge that:</p>
+                <ul>
+                    <li>SafeMeetAlert does not replace common sense or personal safety precautions</li>
+                    <li>GPS tracking requires cellular or WiFi connectivity and may be inaccurate</li>
+                    <li>SMS and email alerts depend on third-party services and may be delayed</li>
+                    <li>We cannot control how emergency contacts respond to alerts</li>
+                    <li>Technical failures, network outages, or device issues may affect service availability</li>
+                    <li>Emergency services (911) should always be contacted first in true emergencies</li>
+                </ul>
+
+                <h3>5. Subscription and Payment</h3>
+                <p><strong>Free Plan:</strong> Limited to being an emergency contact for others</p>
+                <p><strong>Paid Plans:</strong></p>
+                <ul>
+                    <li>Monthly: $10/month, billed monthly, cancel anytime</li>
+                    <li>Annual: $100/year, billed annually, save $20/year</li>
+                    <li>Subscriptions auto-renew unless canceled before renewal date</li>
+                    <li>Refunds available within 30 days of initial purchase only</li>
+                    <li>We reserve the right to change pricing with 30 days notice</li>
+                </ul>
+
+                <h3>6. Acceptable Use Policy</h3>
+                <p>You may NOT use SafeMeetAlert to:</p>
+                <ul>
+                    <li>Harass, stalk, or threaten any person</li>
+                    <li>Create false emergencies or submit fraudulent alerts</li>
+                    <li>Violate any local, state, national, or international law</li>
+                    <li>Impersonate another person or entity</li>
+                    <li>Interfere with or disrupt our servers or networks</li>
+                    <li>Attempt to gain unauthorized access to other users' accounts</li>
+                    <li>Use automated systems (bots) to access the service</li>
+                </ul>
+
+                <h3>7. Account Termination</h3>
+                <p>We may suspend or terminate your account if you:</p>
+                <ul>
+                    <li>Violate these Terms of Service</li>
+                    <li>Abuse the emergency alert system</li>
+                    <li>Fail to pay subscription fees</li>
+                    <li>Use SafeMeetAlert for illegal or harmful purposes</li>
+                </ul>
+                <p>You may terminate your account at any time through the app settings. Upon termination, all data will be deleted within 30 days.</p>
+
+                <h3>8. Disclaimer of Warranties</h3>
+                <p>SafeMeetAlert is provided "as is" without warranties of any kind. We do not guarantee that:</p>
+                <ul>
+                    <li>The service will be uninterrupted or error-free</li>
+                    <li>GPS tracking will be accurate in all situations</li>
+                    <li>Emergency alerts will always be delivered or received</li>
+                    <li>Your emergency contacts will respond to alerts</li>
+                    <li>Using SafeMeetAlert will prevent harm in all circumstances</li>
+                </ul>
+
+                <h3>9. Limitation of Liability</h3>
+                <p><strong>IMPORTANT:</strong> To the fullest extent permitted by law, SafeMeetAlert and its operators shall not be liable for:</p>
+                <ul>
+                    <li>Any injury, harm, loss, or damages resulting from meetings or interactions</li>
+                    <li>Delayed, failed, or inaccurate emergency notifications</li>
+                    <li>GPS tracking errors or location data inaccuracies</li>
+                    <li>Actions or inactions of emergency contacts</li>
+                    <li>Third-party service failures (SMS, email, mapping services)</li>
+                    <li>Lost profits, data, or business opportunities</li>
+                    <li>Indirect, incidental, or consequential damages</li>
+                </ul>
+                <p>Our total liability shall not exceed the amount you paid for SafeMeetAlert in the last 12 months.</p>
+
+                <h3>10. Indemnification</h3>
+                <p>You agree to indemnify and hold harmless SafeMeetAlert from any claims, damages, or expenses arising from:</p>
+                <ul>
+                    <li>Your use or misuse of the service</li>
+                    <li>Your violation of these Terms of Service</li>
+                    <li>Your violation of any third-party rights</li>
+                    <li>False or fraudulent emergency alerts you create</li>
+                </ul>
+
+                <h3>11. Emergency Services</h3>
+                <p><strong>CRITICAL SAFETY NOTICE:</strong></p>
+                <ul>
+                    <li>SafeMeetAlert is NOT a replacement for 911 or emergency services</li>
+                    <li>In life-threatening emergencies, call 911 immediately</li>
+                    <li>SafeMeetAlert should be used as a supplementary safety tool only</li>
+                    <li>We are not affiliated with law enforcement or emergency services</li>
+                    <li>Emergency contacts you designate are NOT professional first responders</li>
+                </ul>
+
+                <h3>12. Changes to Terms</h3>
+                <p>We may modify these terms at any time. Significant changes will be communicated via email 30 days before taking effect. Continued use of SafeMeetAlert after changes indicates acceptance of new terms.</p>
+
+                <h3>13. Governing Law</h3>
+                <p>These terms are governed by the laws of the United States and the state of [Your State]. Any disputes shall be resolved in courts located in [Your County], [Your State].</p>
+
+                <h3>14. Contact Information</h3>
+                <p>For questions about these Terms of Service:</p>
+                <p><strong>Email:</strong> legal@safemeetalert.app<br>
+                <strong>Subject Line:</strong> Terms of Service Inquiry</p>
+
+                <p style="margin-top: 40px; padding: 20px; background: #fee2e2; border-radius: 10px; border-left: 4px solid #dc2626;">
+                    <strong>⚠️ Critical Reminder:</strong> SafeMeetAlert is a safety tool to help reduce risk, but it cannot guarantee your safety. Always use common sense, follow safety guidelines, trust your instincts, and call 911 in true emergencies. Stay alert and prioritize your personal safety above all else.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>🛡️ SafeMeetAlert</h4>
+                <p style="color: rgba(255,255,255,0.7); margin-top: 15px;">Your Personal Safety Companion for every meeting. Meet confidently with GPS tracking and emergency alerts.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/safemeetalert/" target="_blank" class="social-icon">📷</a>
+                    <a href="#" class="social-icon" onclick="alert('Coming soon!'); return false;">𝕏</a>
+                    <a href="#" class="social-icon" onclick="alert('Coming soon!'); return false;">📘</a>
+                    <a href="#" class="social-icon" onclick="alert('Coming soon!'); return false;">💼</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="scrollToSection('features'); return false;">Features</a></li>
+                    <li><a href="#" onclick="scrollToSection('how-it-works'); return false;">How It Works</a></li>
+                    <li><a href="#" onclick="scrollToSection('pricing'); return false;">Pricing</a></li>
+                    <li><a href="index-v5.html">Web App</a></li>
+                    <li><a href="#" onclick="alert('Coming soon!'); return false;">Mobile Apps</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="showSection('about'); return false;">About Us</a></li>
+                    <li><a href="#" onclick="showSection('contact'); return false;">Contact</a></li>
+                    <li><a href="#" onclick="alert('Blog coming soon!'); return false;">Blog</a></li>
+                    <li><a href="#" onclick="alert('Careers coming soon!'); return false;">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="showSection('privacy'); return false;">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showSection('terms'); return false;">Terms of Service</a></li>
+                    <li><a href="#" onclick="showSection('contact'); return false;">Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SafeMeetAlert. All rights reserved. | Your safety is our priority.</p>
+            <p style="margin-top: 10px; font-size: 14px;">⚠️ SafeMeetAlert is a safety tool, not a guarantee of protection. Always call 911 in emergencies.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Page navigation
+        function showSection(section) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Close mobile menu
+            document.getElementById('navLinks').classList.remove('active');
+
+            // Show selected page
+            switch(section) {
+                case 'home':
+                    document.getElementById('homePage').classList.add('active');
+                    break;
+                case 'about':
+                    document.getElementById('aboutPage').classList.add('active');
+                    break;
+                case 'contact':
+                    document.getElementById('contactPage').classList.add('active');
+                    break;
+                case 'privacy':
+                    document.getElementById('privacyPage').classList.add('active');
+                    break;
+                case 'terms':
+                    document.getElementById('termsPage').classList.add('active');
+                    break;
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Scroll to section within home page
+        function scrollToSection(sectionId) {
+            // Make sure home page is visible
+            showSection('home');
+            
+            // Wait for page transition
+            setTimeout(() => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    const offset = 80; // Account for fixed navbar
+                    const elementPosition = section.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+
+            // Close mobile menu
+            document.getElementById('navLinks').classList.remove('active');
+        }
+
+        // Contact form submission
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            alert('Thank you for your message! We\'ll respond within 24 hours.\n\nFor immediate assistance, please email: support@safemeetalert.app');
+            event.target.reset();
+        }
+
+        // Scroll animations
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Initialize scroll animations
+        window.addEventListener('scroll', handleScrollAnimations);
+        window.addEventListener('load', handleScrollAnimations);
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navLinks = document.getElementById('navLinks');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!navLinks.contains(event.target) && !mobileBtn.contains(event.target)) {
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // Prevent scroll animations from triggering on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(handleScrollAnimations, 100);
+        });
+    </script>
+</body>
+</html>
