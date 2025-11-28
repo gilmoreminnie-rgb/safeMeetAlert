@@ -1025,8 +1025,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // API Configuration
-        const API_URL = 'http://localhost:5000/api';
+        // API Configuration - Auto-detect environment
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : `${window.location.protocol}//${window.location.host}/api`;
         
         // Global state
         let currentUser = null;
@@ -1830,12 +1832,13 @@
                 try {
                     const audioResult = await apiCall(`/audio-recordings/${meetingId}`);
                     if (audioResult.recordings && audioResult.recordings.length > 0) {
+                        const baseURL = API_URL.replace('/api', '');
                         detailHTML += `
                             <div style="margin-top: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 10px;">
                                 <h4 style="color: #92400e; margin-bottom: 10px;">🎤 Audio Recordings</h4>
                                 ${audioResult.recordings.map(recording => {
                                     const time = new Date(recording.created_at).toLocaleString();
-                                    const audioUrl = `${API_URL.replace('/api', '')}${recording.url}`;
+                                    const audioUrl = `${baseURL}${recording.url}`;
                                     return `
                                         <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
                                             <p style="font-size: 12px; color: #666; margin-bottom: 5px;">${time} - ${recording.alert_type.toUpperCase()}</p>
@@ -2280,7 +2283,9 @@
                 formData.append('latitude', latitude || '');
                 formData.append('longitude', longitude || '');
                 
-                const response = await fetch(`${API_URL.replace('/api', '')}/api/upload-audio`, {
+                // Use the base URL without /api for upload endpoint
+                const baseURL = API_URL.replace('/api', '');
+                const response = await fetch(`${baseURL}/api/upload-audio`, {
                     method: 'POST',
                     body: formData
                 });
@@ -2498,10 +2503,11 @@
             }
             
             captureLog.style.display = 'block';
+            const baseURL = API_URL.replace('/api', '');
             
             container.innerHTML = sosRecordings.map(recording => {
                 const time = new Date(recording.created_at).toLocaleString();
-                const audioUrl = `${API_URL.replace('/api', '')}${recording.url}`;
+                const audioUrl = `${baseURL}${recording.url}`;
                 let locationText = 'Location unavailable';
                 let mapLink = '';
                 
