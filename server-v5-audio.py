@@ -6,6 +6,7 @@ Features:
 - Audio file upload and storage (file system)
 - Browser-based transcription (no server transcription)
 - Auto-delete audio files older than 30 days
+- Complete API endpoints for SQLite database storage
 """
 
 from flask import Flask, request, jsonify, send_from_directory, send_file
@@ -17,6 +18,7 @@ from datetime import datetime, timedelta
 import os
 import threading
 import time
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -91,6 +93,7 @@ def init_db():
             last_longitude REAL,
             last_location_time TIMESTAMP,
             pin TEXT NOT NULL,
+            overdue_alert_sent BOOLEAN DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
@@ -130,6 +133,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             meeting_id INTEGER NOT NULL,
             user_id INTEGER NOT NULL,
+            user_name TEXT NOT NULL,
             alert_type TEXT NOT NULL,
             filename TEXT NOT NULL,
             transcription TEXT,
@@ -141,12 +145,25 @@ def init_db():
         )
     ''')
     
+    # User cleared alerts table (tracks which alerts each user has dismissed)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_cleared_alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            alert_id INTEGER NOT NULL,
+            cleared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (alert_id) REFERENCES alerts(id),
+            UNIQUE(user_id, alert_id)
+        )
+    ''')
+    
     conn.commit()
     conn.close()
     print("✅ Database initialized successfully")
 
 def migrate_existing_db():
-    """Add audio columns to existing database if needed"""
+    """Add missing columns to existing database if needed"""
     conn = get_db()
     cursor = conn.cursor()
     
@@ -157,11 +174,24 @@ def migrate_existing_db():
         pass  # Column already exists
     
     try:
+        cursor.execute("ALTER TABLE meetings ADD COLUMN overdue_alert_sent BOOLEAN DEFAULT 0")
+        print("✅ Added overdue_alert_sent column to meetings")
+    except sqlite3.OperationalError:
+        pass
+    
+    try:
+        cursor.execute("ALTER TABLE audio_recordings ADD COLUMN user_name TEXT")
+        print("✅ Added user_name column to audio_recordings")
+    except sqlite3.OperationalError:
+        pass
+    
+    try:
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS audio_recordings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 meeting_id INTEGER NOT NULL,
                 user_id INTEGER NOT NULL,
+                user_name TEXT NOT NULL,
                 alert_type TEXT NOT NULL,
                 filename TEXT NOT NULL,
                 transcription TEXT,
@@ -173,6 +203,22 @@ def migrate_existing_db():
             )
         ''')
         print("✅ Created audio_recordings table")
+    except sqlite3.OperationalError:
+        pass
+    
+    try:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_cleared_alerts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                alert_id INTEGER NOT NULL,
+                cleared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (alert_id) REFERENCES alerts(id),
+                UNIQUE(user_id, alert_id)
+            )
+        ''')
+        print("✅ Created user_cleared_alerts table")
     except sqlite3.OperationalError:
         pass
     
@@ -311,6 +357,10 @@ def register():
         cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
         user = dict(cursor.fetchone())
         user.pop('password')
+        
+        # Get contacts (will be empty for new user)
+        cursor.execute('SELECT * FROM contacts WHERE user_id = ?', (user_id,))
+        user['contacts'] = [dict(row) for row in cursor.fetchall()]
         
         conn.close()
         
@@ -464,7 +514,7 @@ def reset_password():
 @app.route('/api/contacts', methods=['GET', 'POST'])
 def contacts():
     """Get or create contacts"""
-    user_id = request.args.get('user_id') or request.json.get('user_id')
+    user_id = request.args.get('user_id') or (request.json.get('user_id') if request.json else None)
     
     if request.method == 'GET':
         try:
@@ -565,7 +615,7 @@ def contact_detail(contact_id):
 @app.route('/api/meetings', methods=['GET', 'POST'])
 def meetings():
     """Get or create meetings"""
-    user_id = request.args.get('user_id') or request.json.get('user_id')
+    user_id = request.args.get('user_id') or (request.json.get('user_id') if request.json else None)
     
     if request.method == 'GET':
         try:
@@ -624,7 +674,7 @@ def meetings():
             
             return jsonify({
                 'organized': organized_meetings,
-                'as_contact': monitoring_meetings
+                'monitoring': monitoring_meetings
             })
             
         except Exception as e:
@@ -774,24 +824,38 @@ def meeting_detail(meeting_id):
             conn = get_db()
             cursor = conn.cursor()
             
+            # Update various meeting fields
+            update_fields = []
+            update_values = []
+            
             if 'status' in data:
-                cursor.execute('''
-                    UPDATE meetings SET status = ? WHERE id = ?
-                ''', (data['status'], meeting_id))
+                update_fields.append('status = ?')
+                update_values.append(data['status'])
                 
                 if data['status'] == 'grace':
-                    cursor.execute('''
-                        UPDATE meetings 
-                        SET grace_period_start = CURRENT_TIMESTAMP 
-                        WHERE id = ?
-                    ''', (meeting_id,))
+                    update_fields.append('grace_period_start = CURRENT_TIMESTAMP')
+            
+            if 'comments' in data:
+                update_fields.append('comments = ?')
+                update_values.append(data['comments'])
+            
+            if 'end_time' in data:
+                update_fields.append('end_time = ?')
+                update_values.append(data['end_time'])
+                update_fields.append('grace_period_start = NULL')
+                update_fields.append('overdue_alert_sent = 0')
             
             if 'latitude' in data and 'longitude' in data:
-                cursor.execute('''
-                    UPDATE meetings 
-                    SET last_latitude = ?, last_longitude = ?, last_location_time = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (data['latitude'], data['longitude'], meeting_id))
+                update_fields.append('last_latitude = ?')
+                update_values.append(data['latitude'])
+                update_fields.append('last_longitude = ?')
+                update_values.append(data['longitude'])
+                update_fields.append('last_location_time = CURRENT_TIMESTAMP')
+            
+            if update_fields:
+                update_values.append(meeting_id)
+                query = f"UPDATE meetings SET {', '.join(update_fields)} WHERE id = ?"
+                cursor.execute(query, update_values)
             
             conn.commit()
             conn.close()
@@ -830,21 +894,46 @@ def alerts():
             conn = get_db()
             cursor = conn.cursor()
             
+            # Get all alerts for meetings user organized or is monitoring
             cursor.execute('''
                 SELECT DISTINCT a.*, u.name as user_name, u.phone as user_phone,
-                       m.person_name, m.location
+                       m.person_name, m.location, m.pin as meeting_pin
                 FROM alerts a
                 JOIN users u ON a.user_id = u.id
                 LEFT JOIN meetings m ON a.meeting_id = m.id
-                WHERE a.user_id = ? OR m.id IN (
+                WHERE (a.user_id = ? OR m.id IN (
                     SELECT mc.meeting_id FROM meeting_contacts mc
                     JOIN contacts c ON mc.contact_id = c.id
                     WHERE c.email = (SELECT email FROM users WHERE id = ?)
+                       OR c.phone = (SELECT phone FROM users WHERE id = ?)
+                ))
+                AND a.cleared = 0
+                AND a.id NOT IN (
+                    SELECT alert_id FROM user_cleared_alerts WHERE user_id = ?
                 )
                 ORDER BY a.created_at DESC
-            ''', (user_id, user_id))
+            ''', (user_id, user_id, user_id, user_id))
             
-            alerts_list = [dict(row) for row in cursor.fetchall()]
+            alerts_list = []
+            for row in cursor.fetchall():
+                alert = dict(row)
+                
+                # Get contacts for this alert
+                if alert['meeting_id']:
+                    cursor.execute('''
+                        SELECT c.* FROM contacts c
+                        JOIN meeting_contacts mc ON c.id = mc.contact_id
+                        WHERE mc.meeting_id = ?
+                    ''', (alert['meeting_id'],))
+                    alert['contacts'] = [dict(c) for c in cursor.fetchall()]
+                else:
+                    # SOS alert - get all user contacts
+                    cursor.execute('''
+                        SELECT * FROM contacts WHERE user_id = ?
+                    ''', (alert['user_id'],))
+                    alert['contacts'] = [dict(c) for c in cursor.fetchall()]
+                
+                alerts_list.append(alert)
             
             conn.close()
             
@@ -878,7 +967,7 @@ def alerts():
             
             cursor.execute('''
                 SELECT a.*, u.name as user_name, u.phone as user_phone,
-                       m.person_name, m.location
+                       m.person_name, m.location, m.pin as meeting_pin, m.comments
                 FROM alerts a
                 JOIN users u ON a.user_id = u.id
                 LEFT JOIN meetings m ON a.meeting_id = m.id
@@ -911,9 +1000,17 @@ def alerts():
             if alert.get('person_name'):
                 meeting_info = f" Meeting with {alert['person_name']} at {alert['location']}."
             
+            comments_info = ""
+            if alert.get('comments'):
+                comments_info = f" NOTES: {alert['comments']}"
+            
+            pin_info = ""
+            if alert.get('meeting_pin'):
+                pin_info = f" Safety PIN: {alert['meeting_pin']}"
+            
             message = (
-                f"EMERGENCY: {alert['user_name']} needs help!{meeting_info}{location_info} "
-                f"Call immediately: {alert['user_phone']}"
+                f"🚨 EMERGENCY: {alert['user_name']} needs help!{meeting_info}{comments_info}{location_info} "
+                f"Call immediately: {alert['user_phone']}{pin_info}"
             )
             
             for contact in contacts:
@@ -929,23 +1026,121 @@ def alerts():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-@app.route('/api/alerts/<int:alert_id>', methods=['PUT'])
-def alert_detail(alert_id):
-    """Update alert (clear)"""
+@app.route('/api/alerts/<int:alert_id>/clear', methods=['POST'])
+def clear_alert(alert_id):
+    """Clear alert for specific user"""
     data = request.json
+    user_id = data.get('user_id')
     
     try:
         conn = get_db()
         cursor = conn.cursor()
         
+        # Add to user_cleared_alerts table
         cursor.execute('''
-            UPDATE alerts SET cleared = ? WHERE id = ?
-        ''', (data.get('cleared', True), alert_id))
+            INSERT OR IGNORE INTO user_cleared_alerts (user_id, alert_id)
+            VALUES (?, ?)
+        ''', (user_id, alert_id))
         
         conn.commit()
         conn.close()
         
         return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/alerts/overdue', methods=['POST'])
+def create_overdue_alert():
+    """Create overdue alert for meeting"""
+    data = request.json
+    meeting_id = data.get('meeting_id')
+    
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Get meeting details
+        cursor.execute('''
+            SELECT m.*, u.name as user_name, u.phone as user_phone
+            FROM meetings m
+            JOIN users u ON m.user_id = u.id
+            WHERE m.id = ?
+        ''', (meeting_id,))
+        
+        meeting = cursor.fetchone()
+        
+        if not meeting:
+            return jsonify({'error': 'Meeting not found'}), 404
+        
+        # Check if alert already exists
+        cursor.execute('''
+            SELECT id FROM alerts 
+            WHERE meeting_id = ? AND alert_type = 'overdue' AND cleared = 0
+        ''', (meeting_id,))
+        
+        if cursor.fetchone():
+            return jsonify({'error': 'Overdue alert already exists'}), 400
+        
+        # Create overdue alert
+        cursor.execute('''
+            INSERT INTO alerts (
+                user_id, meeting_id, alert_type, latitude, longitude
+            )
+            VALUES (?, ?, 'overdue', ?, ?)
+        ''', (
+            meeting['user_id'],
+            meeting_id,
+            meeting['last_latitude'],
+            meeting['last_longitude']
+        ))
+        
+        alert_id = cursor.lastrowid
+        
+        # Mark meeting as overdue alert sent
+        cursor.execute('''
+            UPDATE meetings SET overdue_alert_sent = 1 WHERE id = ?
+        ''', (meeting_id,))
+        
+        conn.commit()
+        
+        # Send SMS to contacts
+        cursor.execute('''
+            SELECT c.* FROM contacts c
+            JOIN meeting_contacts mc ON c.id = mc.contact_id
+            WHERE mc.meeting_id = ?
+        ''', (meeting_id,))
+        
+        contacts = cursor.fetchall()
+        
+        location_info = ""
+        if meeting['last_latitude'] and meeting['last_longitude']:
+            update_time = meeting['last_location_time'] if meeting['last_location_time'] else 'Unknown'
+            location_info = f" Last GPS: {meeting['last_latitude']:.6f}, {meeting['last_longitude']:.6f} (Updated: {update_time})."
+            location_info += f" Track: https://www.google.com/maps?q={meeting['last_latitude']},{meeting['last_longitude']}"
+        
+        comments_info = ""
+        if meeting['comments']:
+            comments_info = f" NOTES: {meeting['comments']}"
+        
+        end_time = datetime.fromisoformat(meeting['end_time']).strftime('%I:%M %p on %B %d')
+        
+        message = (
+            f"🚨 ALERT: {meeting['user_name']} has not checked in after their meeting with "
+            f"{meeting['person_name']} at {meeting['location']}. Meeting ended at {end_time}. "
+            f"They may need assistance.{comments_info}{location_info} "
+            f"Contact them at {meeting['user_phone']} Safety PIN: {meeting['pin']}"
+        )
+        
+        for contact in contacts:
+            send_sms(contact['phone'], message)
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'alert_id': alert_id
+        })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -971,6 +1166,13 @@ def upload_audio():
         if not audio_file.filename:
             return jsonify({'error': 'Invalid audio file'}), 400
         
+        # Get user name
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT name FROM users WHERE id = ?', (user_id,))
+        user = cursor.fetchone()
+        user_name = user['name'] if user else 'Unknown'
+        
         # Generate unique filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"{meeting_id}_{timestamp}_{user_id}_{alert_type}.webm"
@@ -981,17 +1183,15 @@ def upload_audio():
         print(f"✅ Audio file saved: {filepath} ({os.path.getsize(filepath)} bytes)")
         
         # Save to database
-        conn = get_db()
-        cursor = conn.cursor()
-        
         cursor.execute('''
             INSERT INTO audio_recordings (
-                meeting_id, user_id, alert_type, filename, transcription, latitude, longitude
+                meeting_id, user_id, user_name, alert_type, filename, transcription, latitude, longitude
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             meeting_id,
             user_id,
+            user_name,
             alert_type,
             filename,
             transcription,
@@ -1029,21 +1229,30 @@ def get_audio(filename):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/audio-recordings/<int:meeting_id>')
-def get_meeting_audio_recordings(meeting_id):
-    """Get all audio recordings for a specific meeting"""
+@app.route('/api/audio-recordings', methods=['GET'])
+def get_audio_recordings():
+    """Get all audio recordings (optionally filtered by meeting_id or alert_type)"""
+    meeting_id = request.args.get('meeting_id')
+    alert_type = request.args.get('alert_type')
+    
     try:
         conn = get_db()
         cursor = conn.cursor()
         
-        cursor.execute('''
-            SELECT ar.*, u.name as user_name
-            FROM audio_recordings ar
-            JOIN users u ON ar.user_id = u.id
-            WHERE ar.meeting_id = ?
-            ORDER BY ar.created_at DESC
-        ''', (meeting_id,))
+        query = 'SELECT * FROM audio_recordings WHERE 1=1'
+        params = []
         
+        if meeting_id:
+            query += ' AND meeting_id = ?'
+            params.append(meeting_id)
+        
+        if alert_type:
+            query += ' AND alert_type = ?'
+            params.append(alert_type)
+        
+        query += ' ORDER BY created_at DESC'
+        
+        cursor.execute(query, params)
         recordings = [dict(row) for row in cursor.fetchall()]
         
         # Add audio URL to each recording
@@ -1077,9 +1286,13 @@ def user_detail(user_id):
             user_dict = dict(user)
             user_dict.pop('password')
             
+            # Get contacts
+            cursor.execute('SELECT * FROM contacts WHERE user_id = ?', (user_id,))
+            user_dict['contacts'] = [dict(row) for row in cursor.fetchall()]
+            
             conn.close()
             
-            return jsonify(user_dict)
+            return jsonify({'user': user_dict})
             
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -1120,9 +1333,23 @@ def user_detail(user_id):
                 cursor.execute(query, update_values)
             
             conn.commit()
+            
+            # Get updated user
+            cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+            user = cursor.fetchone()
+            user_dict = dict(user)
+            user_dict.pop('password')
+            
+            # Get contacts
+            cursor.execute('SELECT * FROM contacts WHERE user_id = ?', (user_id,))
+            user_dict['contacts'] = [dict(row) for row in cursor.fetchall()]
+            
             conn.close()
             
-            return jsonify({'success': True})
+            return jsonify({
+                'success': True,
+                'user': user_dict
+            })
             
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -1150,6 +1377,7 @@ if __name__ == '__main__':
     print("🛡️  SafeMeet v5.0 Audio Server Starting")
     print("="*60)
     print("\n✨ Features:")
+    print("   • Complete SQLite database storage")
     print("   • Forgot password with reset tokens")
     print("   • Meeting comments field")
     print("   • 10-minute grace period tracking")
@@ -1171,5 +1399,3 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
-
-
