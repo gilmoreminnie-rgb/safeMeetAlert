@@ -1885,8 +1885,16 @@
 
         async function markSafe(meetingId) {
             try {
+                // Mark meeting as ended
                 await apiCall(`/meetings/${meetingId}`, 'PUT', { status: 'ended' });
-                alert('Great! Meeting marked as ended safely.');
+                
+                // Clear any alerts related to this meeting
+                const relatedAlerts = alerts.filter(a => a.meeting_id === meetingId && !a.cleared);
+                for (const alert of relatedAlerts) {
+                    await apiCall(`/alerts/${alert.id}`, 'PUT', { cleared: true });
+                }
+                
+                alert('✅ Great! Meeting marked as ended safely. All alerts cleared.');
                 await showDashboard();
             } catch (error) {
                 alert('Error: ' + error.message);
@@ -1987,19 +1995,69 @@
             alertsTab.classList.add('alert-active');
 
             container.innerHTML = activeAlerts.map(alert => {
+                const isMyAlert = alert.user_id === currentUser.id;
+                
                 return `
                     <div class="meeting-card alert-flash" style="border-left-color: #ff4757;">
                         <h4>⚠️ ${alert.alert_type.toUpperCase()} ALERT</h4>
                         <p><strong>${alert.user_name}</strong> may need help!</p>
                         ${alert.person_name ? `<p>Meeting with: ${alert.person_name}</p>` : ''}
                         ${alert.location ? `<p>Location: ${alert.location}</p>` : ''}
+                        ${alert.latitude && alert.longitude ? `<p>📍 GPS: ${alert.latitude.toFixed(6)}, ${alert.longitude.toFixed(6)}</p>` : ''}
                         <p>Time: ${new Date(alert.created_at).toLocaleString()}</p>
                         <div class="contact-actions">
-                            <button class="btn btn-danger btn-small" onclick="alert('Call ${alert.user_phone}')">📞 Call Now</button>
+                            ${isMyAlert ? `
+                                <button class="btn btn-success btn-small" onclick="clearMyAlert(${alert.id})">✓ I'm Safe - Clear Alert</button>
+                            ` : `
+                                <button class="btn btn-danger btn-small" onclick="alert('Call ${alert.user_phone}')">📞 Call Now</button>
+                                <button class="btn btn-secondary btn-small" onclick="clearContactAlert(${alert.id})">✓ Clear Alert</button>
+                            `}
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Clear alert when user marks themselves safe
+        async function clearMyAlert(alertId) {
+            try {
+                await apiCall(`/alerts/${alertId}`, 'PUT', { cleared: true });
+                
+                // Update local alerts array
+                const alertIndex = alerts.findIndex(a => a.id === alertId);
+                if (alertIndex !== -1) {
+                    alerts[alertIndex].cleared = true;
+                }
+                
+                displayAlerts();
+                alert('✅ Alert cleared! Your contacts have been notified you are safe.');
+            } catch (error) {
+                console.error('Failed to clear alert:', error);
+                alert('Error clearing alert. Please try again.');
+            }
+        }
+
+        // Clear alert when emergency contact confirms
+        async function clearContactAlert(alertId) {
+            if (!confirm('Have you confirmed this person is safe?')) {
+                return;
+            }
+            
+            try {
+                await apiCall(`/alerts/${alertId}`, 'PUT', { cleared: true });
+                
+                // Update local alerts array
+                const alertIndex = alerts.findIndex(a => a.id === alertId);
+                if (alertIndex !== -1) {
+                    alerts[alertIndex].cleared = true;
+                }
+                
+                displayAlerts();
+                alert('✅ Alert cleared.');
+            } catch (error) {
+                console.error('Failed to clear alert:', error);
+                alert('Error clearing alert. Please try again.');
+            }
         }
 
         // ============= ACCOUNT SETTINGS =============
